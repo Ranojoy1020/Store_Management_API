@@ -1,5 +1,6 @@
 package com.project.StoreManagement.service;
 
+import com.project.StoreManagement.dto.CustomerDTO;
 import com.project.StoreManagement.entity.Customer;
 import com.project.StoreManagement.exception.CustomerNotFoundException;
 import com.project.StoreManagement.repository.CustomerRepository;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService {
@@ -18,8 +20,11 @@ public class CustomerService {
         this.customerRepository = customerRepository;
     }
 
-    public List<Customer> getAllCustomers() {
-        return customerRepository.findAll();
+    public List<CustomerDTO> getAllCustomers() {
+        List<Customer> customerList = customerRepository.findAll();
+        return customerList.stream()
+                .map(CustomerDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     public Customer addCustomer(Customer customer) {

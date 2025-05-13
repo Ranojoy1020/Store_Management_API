@@ -2,6 +2,7 @@ package com.project.StoreManagement.service;
 
 import com.project.StoreManagement.entity.Udhaar;
 import com.project.StoreManagement.entity.UdhaarReminder;
+import com.project.StoreManagement.enums.UdhaarStatus;
 import com.project.StoreManagement.repository.UdhaarReminderRepository;
 import com.project.StoreManagement.repository.UdhaarRepository;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,9 +24,9 @@ public class UdhaarReminderService {
     }
 
     // Runs every day at 9 AM to send reminders
-    @Scheduled(cron = "0 0 9 * * ?")
+    @Scheduled(cron = "0 42 11 * * ?")
     public void sendOverdueReminders() {
-        List<Udhaar> overdueUdhaar = udhaarRepository.findByStatus("OVERDUE");
+        List<Udhaar> overdueUdhaar = udhaarRepository.findByStatus(UdhaarStatus.OVERDUE);
 
         for (Udhaar udhaar : overdueUdhaar) {
             String message = "Your Udhaar of ₹" + udhaar.getAmountDue() + " was due on " + udhaar.getDueDate() + ". Please clear your dues.";

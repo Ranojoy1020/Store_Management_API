@@ -1,5 +1,6 @@
 package com.project.StoreManagement.entity;
 
+import com.project.StoreManagement.enums.ExpenseCategory;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -14,7 +15,13 @@ public class Expense {
     private Long expenseId;
 
     private LocalDateTime expenseDate = LocalDateTime.now();
-    private String category;
+
+    @Enumerated(EnumType.STRING)
+    private ExpenseCategory category;
+
+    @Column(nullable = true)
+    private Long supplierId;
+
     private double amount;
     private String description;
 }

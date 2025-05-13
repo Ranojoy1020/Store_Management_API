@@ -1,5 +1,6 @@
 package com.project.StoreManagement.controller;
 
+import com.project.StoreManagement.dto.CustomerDTO;
 import com.project.StoreManagement.entity.Customer;
 import com.project.StoreManagement.service.CustomerService;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class CustomerController {
     }
 
     @GetMapping("/allCustomers")
-    public List<Customer> getAllCustomers() {
+    public List<CustomerDTO> getAllCustomers() {
         return customerService.getAllCustomers();
     }
 

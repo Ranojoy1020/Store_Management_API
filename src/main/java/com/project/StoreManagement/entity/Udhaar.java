@@ -16,18 +16,19 @@ public class Udhaar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long udhaarId;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
     @OneToOne
-    @JoinColumn(name = "sales_id", unique = true, nullable = false)
-    @JsonBackReference
+    @JoinColumn(name = "sale_id")
     @JsonIgnore
-    private Sales sales; // Only linked if the sale was on Udhaar
+    private Sales sale; // Only linked if the sale was on Udhaar
 
     private double amountDue;
     private LocalDate dueDate;
-    private String status; // "PENDING", "OVERDUE", "PAID"
+
+    @Enumerated(EnumType.STRING)
+    private UdhaarStatus status; // "PENDING", "OVERDUE", "PAID"
 }
 

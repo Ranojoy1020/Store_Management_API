@@ -1,5 +1,6 @@
 package com.project.StoreManagement.controller;
 
+import com.project.StoreManagement.dto.UdhaarDTO;
 import com.project.StoreManagement.entity.Udhaar;
 import com.project.StoreManagement.service.UdhaarService;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +18,13 @@ public class UdhaarController {
     }
 
     @GetMapping("/allUdhaar")
-    public List<Udhaar> getAllUdhaar() {
+    public List<UdhaarDTO> getAllUdhaar() {
         return udhaarService.getAllUdhaar();
+    }
+
+    @GetMapping("/allUnpaidUdhaar")
+    public List<UdhaarDTO> getAllUnpaidUdhaar() {
+        return udhaarService.getAllUnpaidUdhaar();
     }
 
     @PostMapping("/addUdhaar")
@@ -37,7 +43,7 @@ public class UdhaarController {
     }
 
     @PostMapping("/sale/{salesId}")
-    public Udhaar createUdhaarForSale(@PathVariable Long salesId, @RequestParam double amountDue, @RequestParam String dueDate) {
-        return udhaarService.createUdhaarForSale(salesId, amountDue, LocalDate.parse(dueDate));
+    public Udhaar createUdhaarForSale(@PathVariable Long salesId) {
+        return udhaarService.createUdhaarForSale(salesId);
     }
 }

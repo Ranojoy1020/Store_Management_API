@@ -16,7 +16,6 @@ public class SalesItem {
 
     @ManyToOne
     @JoinColumn(name = "sales_id", nullable = false)
-    @JsonBackReference
     @JsonIgnore
     private Sales sale;
 

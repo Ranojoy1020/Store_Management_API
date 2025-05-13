@@ -5,8 +5,12 @@ import com.project.StoreManagement.entity.Product;
 import com.project.StoreManagement.exception.ProductNotFoundException;
 import com.project.StoreManagement.repository.InventoryRepository;
 import com.project.StoreManagement.repository.ProductRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class InventoryService {
@@ -56,5 +60,16 @@ public class InventoryService {
     public void deleteInventory(Long inventoryId) {
         inventoryRepository.deleteById(inventoryId);
     }
+
+    // Runs at 12 AM
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void checkInventoryStatus() throws Exception {
+        List<Inventory> lowStockItems = inventoryRepository.findLowStockItems();
+
+        if (!lowStockItems.isEmpty()) {
+            notificationService.sendLowInventoryAlert(lowStockItems);
+        }
+    }
+
 }
 

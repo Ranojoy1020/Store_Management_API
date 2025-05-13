@@ -1,26 +1,34 @@
 package com.project.StoreManagement.service;
 
-import com.project.StoreManagement.entity.Sales;
-import com.project.StoreManagement.entity.SalesItem;
-import com.project.StoreManagement.entity.Inventory;
-import com.project.StoreManagement.repository.SalesRepository;
-import com.project.StoreManagement.repository.InventoryRepository;
+import com.project.StoreManagement.dto.SalesDTO;
+import com.project.StoreManagement.dto.TopProductDTO;
+import com.project.StoreManagement.entity.*;
+import com.project.StoreManagement.enums.UdhaarStatus;
+import com.project.StoreManagement.repository.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
+
+import java.time.*;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SalesService {
     private final SalesRepository salesRepository;
+    private final SalesItemRepository salesItemRepository;
     private final InventoryRepository inventoryRepository;
+    private final UdhaarService udhaarService;
 
-    public SalesService(SalesRepository salesRepository, InventoryRepository inventoryRepository) {
+    public SalesService(SalesRepository salesRepository,SalesItemRepository salesItemRepository, InventoryRepository inventoryRepository, UdhaarService udhaarService) {
         this.salesRepository = salesRepository;
+        this.salesItemRepository = salesItemRepository;
         this.inventoryRepository = inventoryRepository;
+        this.udhaarService = udhaarService;
     }
 
     public Sales recordSale(Sales sale) {
-        sale.setSaleDate(LocalDate.now()); // Auto-set sale date
+        sale.setSaleDate(LocalDateTime.now()); // Auto-set sale date
 
         double totalAmount = 0;
         for (SalesItem item : sale.getSalesItems()) {
@@ -45,11 +53,49 @@ public class SalesService {
 
         // Set total sale amount
         sale.setTotalAmount(totalAmount);
+        Sales savedSale = salesRepository.save(sale);
 
-        return salesRepository.save(sale);
+        // 🧾 Automatically create Udhaar if payment mode is UDHAAR
+        if ("UDHAAR".equalsIgnoreCase(savedSale.getPaymentMode())) {
+
+            if (savedSale.getUdhaar() == null) {
+                savedSale.setUdhaar(udhaarService.createUdhaarForSale(savedSale.getSaleId()));
+                return salesRepository.save(savedSale);
+            }
+        }
+
+
+        return savedSale;
     }
 
-    public List<Sales> getAllSales() {
-        return salesRepository.findAll();
+    public List<SalesDTO> getAllSales() {
+        List<Sales> salesList = salesRepository.findAll();
+        return salesList.stream().map(SalesDTO::fromEntity).collect(Collectors.toList());
+    }
+
+    public List<SalesDTO> getAllSalesDesc() {
+        List<Sales> salesList = salesRepository.findAll(Sort.by(Sort.Order.desc("saleDate")));
+        return salesList.stream().map(SalesDTO::fromEntity).collect(Collectors.toList());
+    }
+
+    public List<TopProductDTO> getTopSellingProducts(String period) {
+        LocalDateTime startDateTime = null;
+
+        if ("week".equalsIgnoreCase(period)) {
+            startDateTime = LocalDateTime.now(Clock.systemDefaultZone()).minusDays(7);
+        } else if ("month".equalsIgnoreCase(period)) {
+            startDateTime = LocalDateTime.now(Clock.systemDefaultZone()).minusMonths(1);
+        }
+
+        List<Object[]> results = salesItemRepository.findTopSellingProductsWithDateFilter(startDateTime);
+
+        return results.stream()
+                .map(row -> new TopProductDTO((String) row[0], ((Number) row[1]).longValue()))
+                .collect(Collectors.toList());
+    }
+
+
+    public List<Sales> getSalesReport(LocalDate start, LocalDate end, Long customerId, String paymentMode) {
+        return salesRepository.getReport(start.atStartOfDay(), end.atTime(LocalTime.MAX),customerId, paymentMode);
     }
 }

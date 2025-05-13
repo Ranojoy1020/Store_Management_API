@@ -8,10 +8,16 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Supplier {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long supplierId;
     private String name;
     private String contact;
+
+    @Column(nullable = true)
+    private String email;
     private String address;
+
+    private String gstNo;
 }
