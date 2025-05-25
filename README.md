@@ -1,7 +1,6 @@
 This is the backend API for the store management system. This is developed using SpringBoot Framework.
 
-# Add application.properties file to root of project
-# with following properties:
+# Add application.properties file to root of project with following properties:
 
 server.servlet.context-path=/api
 
